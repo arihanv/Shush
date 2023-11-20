@@ -1,14 +1,21 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Waveform from "@/components/waveform";
 import Stats from "@/components/stats";
 import { File, Upload } from "lucide-react";
+import AudioSubmit from "@/components/audio-submit";
 
 export default function TryIt() {
   const [file, setFile] = useState<File | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
+  useEffect(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  }, [file]);
+
   return (
     <div className="container flex w-full flex-col items-center gap-12">
       <section className="text-center py-28 max-w-3xl flex flex-col gap-3 items-center w-full">
@@ -16,9 +23,12 @@ export default function TryIt() {
           Upload an mp3 file
         </div>
         {file && (
-          <h1 className="pt-12 font-semibold w-full">
-            <Waveform file={file} />
-          </h1>
+          <div className="flex flex-col items-center w-full gap-2">
+            <h1 className="pt-12 font-semibold w-full">
+              <Waveform file={file} />
+            </h1>
+            <AudioSubmit file={file} setFile={setFile} />
+          </div>
         )}
         <div
           onClick={() => fileInputRef.current?.click()}
