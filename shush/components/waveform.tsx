@@ -48,6 +48,9 @@ const Waveform = ({ file }: Props) => {
           return metadata;
         });
       });
+      track.current.on("finish", () => {
+        setPlay(false);
+      });
 
       return () => {
         if (track.current) {
