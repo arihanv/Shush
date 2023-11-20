@@ -8,17 +8,7 @@ import { File, Upload } from "lucide-react";
 export default function TryIt() {
   const [file, setFile] = useState<File | undefined>();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleFileUpload = (event: any) => {
-    setFile(event.target.files[0]);
-  };
-
+  
   return (
     <div className="container flex w-full flex-col items-center gap-12">
       <section className="text-center py-28 max-w-3xl flex flex-col gap-3 items-center w-full">
@@ -31,7 +21,7 @@ export default function TryIt() {
           </h1>
         )}
         <div
-          onClick={handleButtonClick}
+          onClick={() => fileInputRef.current?.click()}
           className="cursor-pointer justify-center"
         >
           {!file ? (
@@ -48,7 +38,7 @@ export default function TryIt() {
             type="file"
             accept=".mp3"
             style={{ display: "none" }}
-            onChange={handleFileUpload}
+            onChange={(e) => setFile(e.target.files?.[0])}
           />
         </div>
       </section>
