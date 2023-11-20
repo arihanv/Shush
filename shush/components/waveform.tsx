@@ -36,7 +36,7 @@ const Waveform = ({ file }: Props) => {
         barGap: 1,
         barWidth: 3,
         barRadius: 3,
-        cursorColor: "#4F4A85",
+        cursorColor: "rgb(75 85 99)",
         cursorWidth: 3,
       });
       track.current.on("ready", () => {
@@ -94,13 +94,13 @@ const Waveform = ({ file }: Props) => {
         </div>
         <div
           className={clsx(
-            "flex flex-col w-full gap-2",
+            "flex flex-col w-full gap-2 text-gray-600",
             mounted ? "block" : "hidden"
           )}
         >
-          <div className="justify-between flex font-mono tracking-tight text-sm text-opacity-70">
-            <div>{file.name}</div>
-            <div>{(metadata.size / 1000).toFixed(2)} kb</div>
+          <div className="justify-between flex font-mono tracking-tight text-sm text-opacity-70 w-full gap-24">
+            <div className="text-ellipsis overflow-hidden w-fit whitespace-nowrap">{file.name}</div>
+            <div className="whitespace-nowrap w-fit">{(metadata.size / 1000).toFixed(2)} kb</div>
           </div>
           <div className="w-full" ref={waveform} id="waveform"></div>
           <div className="justify-between flex font-mono tracking-tight text-sm text-opacity-70 items-center">
