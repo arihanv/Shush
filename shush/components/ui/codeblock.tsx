@@ -9,10 +9,8 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coldarkCold } from "react-syntax-highlighter/dist/cjs/styles/prism";
 
 import { useCopyToClipboard } from "@/lib/hooks/use-copy-to-clipboard";
-// import { IconCheck, IconCopy, IconDownload } from '@/components/ui/icons'
 
 import { Check, Copy, Download } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface Props {
   language: string;
@@ -78,9 +76,9 @@ const CodeBlock: FC<Props> = memo(({ language, value, fileName }) => {
   return (
     <div className="codeblock relative w-full bg-white font-sans shadow-md rounded-lg">
       <div className="flex w-full items-center justify-between pr-4 bg-gray-100 rounded-t-lg">
-        <div className="lowercase bg-white h-full flex items-center text-xs p-2 justify-between border-t px-3 gap-2.5 border-t-blue-500">
+        <div className="lowercase bg-white h-full flex items-center text-sm p-2 justify-between border-t px-3 gap-2.5 border-t-blue-500">
           <div className="gap-1 flex">
-            <PythonLogo height={12} className="mt-[.15rem]" /> {fileName}{" "}
+            {language == "python" && <PythonLogo height={14} className="mt-[.2rem]" />} {fileName}{" "}
           </div>{" "}
           <span className="rounded-full bg-gray-700 h-2 w-2 mt-[.15rem]"></span>
         </div>
@@ -106,13 +104,12 @@ const CodeBlock: FC<Props> = memo(({ language, value, fileName }) => {
           margin: 0,
           width: "100%",
           background: "transparent",
-          padding: "1.5rem 1rem",
-          lineHeight: "1.25",
+          lineHeight: "1.2",
         }}
         codeTagProps={{
           style: {
             lineHeight: "inherit",
-            fontSize: "0.8em",
+            fontSize: "0.85em",
             fontFamily: "var(--font-mono)",
           },
         }}
