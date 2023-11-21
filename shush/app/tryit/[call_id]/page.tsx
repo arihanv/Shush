@@ -1,50 +1,79 @@
+"use client";
+
 import DataViewer from "@/components/data-viewer";
-import React from "react";
-import { headers } from "next/headers";
+import React, { useEffect, useState } from "react";
 import ShareUrl from "@/components/share-url";
 import ReqFail from "./reqFail";
 import ReqProgress from "./reqProgress";
+import Loading from "./loading";
 
-async function getFunctionOutput(call_id: string) {
-  const formData = new FormData();
-  formData.append("call_id", call_id);
-  const response = await fetch(`${process.env.NEXT_PUBLIC_MODAL_URL}/call_id`, {
-    method: "POST",
-    body: formData,
-  });
-  return response;
-}
+export default function Page({ params }: { params: { call_id: string } }) {
+  const [data, setData] = useState<any | undefined>();
+  const [status, setStatus] = useState<number>();
 
-export default async function Page({
-  params,
-}: {
-  params: { call_id: string };
-}) {
-  const headersList = headers();
-  const host = headersList.get("host");
-  const data = await getFunctionOutput(params.call_id);
-  if (data.status == 202) {
-    setTimeout(() => {
-      Page({ params });
-    }, 5000);
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const formData = new FormData();
+    formData.append("call_id", params.call_id);
+    const fetchData = async () => {
+      fetch(`${process.env.NEXT_PUBLIC_MODAL_URL}/call_id`, {
+        method: "POST",
+        body: formData,
+      })
+        .then((response) => {
+          setStatus(response.status);
+          if (response.status == 202) {
+            timeoutId = setTimeout(fetchData, 10000);
+          } else {
+            return response.json();
+          }
+        }).then((data) => {
+          setData(data);
+        }
+        )
+
+        .catch((error) => {
+          setStatus(500);
+          console.error("Error:", error);
+        });
+    };
+    fetchData();
+    return () => clearTimeout(timeoutId);
+  }, []);
+
+  if (status == 202) {
     return <ReqProgress />;
   }
-  if (!data.ok) {
+
+  if (status == 500) {
     return <ReqFail />;
   }
-  const res = await data.json();
 
-  return (
-    <>
-      <div className="container flex w-full flex-col items-center gap-4 max-w-3xl">
-        <DataViewer data={res} />
-        <div className="flex items-center w-full text-lg gap-4">
-          <span className="opacity-70 font-mono text-base font-medium">
-            Share
-          </span>
-          <ShareUrl host={`${host}/tryit` || "localhost:3000/tryit"} call_id={params.call_id} />
+  if (!data) {
+    return <Loading />;
+  }
+
+  if (data) {
+    return (
+      <>
+        <div className="container flex flex-col items-center gap-4 max-w-3xl">
+          <DataViewer data={data} />
+          <div className="flex items-center text-lg gap-4 w-full">
+            <div className="opacity-70 font-mono text-base font-medium">
+              Share
+            </div>
+            <ShareUrl
+              host={
+                window.location.protocol +
+                "//" +
+                window.location.host +
+                "/tryit"
+              }
+              call_id={params.call_id}
+            />
+          </div>
         </div>
-      </div>
-    </>
-  );
+      </>
+    );
+  }
 }
