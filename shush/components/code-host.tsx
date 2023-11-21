@@ -29,10 +29,11 @@ export default function CodeHost() {
             </p>
             <p>
               Once you create a free account and download the Python client,
-              copy or download the base code below. It's on github too: <Link
+              copy or download the base code below. It's on github too:{" "}
+              <Link
                 className="text-green-600"
                 target="_"
-                href="https://www.modal.com/"
+                href="https://github.com/arihanv/Shush/blob/main/modal/modal_app.py"
               >
                 Code
               </Link>
@@ -43,8 +44,7 @@ export default function CodeHost() {
               <CodeBlock
                 fileName="modal_app.py"
                 language="python"
-                value={
-                `from modal import Image, Secret, Stub, method, NetworkFileSystem, asgi_app, Function
+                value={`from modal import Image, Secret, Stub, method, NetworkFileSystem, asgi_app, Function
 from fastapi import Request, FastAPI
 import tempfile
 
@@ -127,7 +127,7 @@ class WhisperV3:
         return output, elapsed
 
 @stub.function()
-@web_app.post("/transcribe")
+@web_app.post("/")
 async def transcribe(audio: bytes):
     output, elapsed= WhisperV3().generate.remote(audio)
     return output, elapsed
@@ -140,19 +140,80 @@ def entrypoint():
             </div>
           </div>
           <div className="prose prose-p:tracking-tight mb-6">
-            <p>After authenticating with the Modal CLI, run this in your terminal:</p>
+            <p>
+              After authenticating with the Modal CLI, run this in your
+              terminal:
+            </p>
             <pre className="bg-gray-100 text-black border-gray-300 border-2">
-              <code><span className="select-none pr-3">$</span>{"modal deploy modal_app.py"}</code>
+              <code>
+                <span className="select-none pr-3">$</span>
+                {"modal deploy modal_app.py"}
+              </code>
             </pre>
           </div>
           <div className="prose prose-p:tracking-tight">
             <p>{`Now you can make requests! Remember to fill in the missing info:`}</p>
             <pre className="bg-gray-100 text-black border-gray-300 border-2">
-              <code><span className="select-none pr-3">$</span>{`curl -X POST -H "Content-Type: application/octet-stream" --data-binary @<file> "https://<modal_org_name>--<stub_name>-entrypoint.modal.run?audio=<file>`}</code>
+              <code>
+                <span className="select-none pr-3">$</span>
+                {`curl -X POST -H "Content-Type: application/octet-stream" --data-binary @<file> "https://<modal_org_name>--<stub_name>-entrypoint.modal.run?audio=<file>`}
+              </code>
             </pre>
           </div>
         </TabsContent>
-        <TabsContent value="local">Hello</TabsContent>
+        <TabsContent value="local" className="w-full text-start">
+          <div className="prose prose-p:tracking-tight">
+            <p>
+              Run WhisperV3 easily with <Link
+                className="text-orange-600"
+                target="_"
+                href="https://github.com/Vaibhavs10/insanely-fast-whisper"
+              >
+                Insanely Fast Whisper
+              </Link>
+              .
+            </p>
+            <p>
+              Install <code>insanely-fast-whisper</code> with <code>pipx</code>
+            </p>
+            <pre className="bg-gray-100 text-black border-gray-300 border-2">
+              <code>
+                <span className="select-none pr-3">$</span>pipx install
+                insanely-fast-whisper
+              </code>
+            </pre>
+            <p>
+              Run inference with <code>flash attention v2</code>. Requires
+              Amphere GPUs (A10G, A100, etc.) View the full requirements at the
+              pypi page:{" "}
+              <Link
+                className="text-blue-600"
+                target="_"
+                href="https://pypi.org/project/flash-attn/"
+              >
+                flash-attn
+              </Link>
+            </p>
+            <pre className="bg-gray-100 text-black border-gray-300 border-2">
+              <code>
+                <span className="select-none pr-3">$</span>
+                {
+                  "insanely-fast-whisper --file-name <filename or URL> --flash True"
+                }
+              </code>
+            </pre>
+            <p>
+              If you don't have an Amphere GPU, you can still run WhisperV3
+              without flash attention.
+            </p>
+            <pre className="bg-gray-100 text-black border-gray-300 border-2">
+              <code>
+                <span className="select-none pr-3">$</span>
+                {"insanely-fast-whisper --file-name <filename or URL>"}
+              </code>
+            </pre>
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );

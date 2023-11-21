@@ -86,7 +86,7 @@ class WhisperV3:
         return output, elapsed
 
 @stub.function()
-@web_app.post("/transcribe")
+@web_app.post("/")
 async def transcribe(audio: bytes):
     output, elapsed= WhisperV3().generate.remote(audio)
     return output, elapsed
