@@ -7,9 +7,9 @@ type Props = {};
 export default function Navbar({}: Props) {
   return (
     <div className="flex w-full items-center p-3 justify-between sticky top-0 backdrop-blur-sm">
-      <div className="flex items-center text-2xl font-semibold tracking-tighter">
+      <Link href={"/"} className="flex items-center text-2xl font-semibold tracking-tighter">
         Shush <Ear />
-      </div>
+      </Link>
       <Link className="flex items-center gap-2" href={"https://github.com/arihanv/Shush"} target="_">
       <div className="bg-gray-100 text-sm w-fit px-2.5 rounded-xl border-gray-300 border text-gray-600 hover:shadow-lg transition-shadow flex items-center group">
           Get the code{" "}
