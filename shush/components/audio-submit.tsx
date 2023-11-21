@@ -23,8 +23,6 @@ export default function AudioSubmit({ setFile, file }: Props) {
   const [open, setOpen] = useState(false);
   const [call_id, setCall_id] = useState("");
   async function submitAudio() {
-    console.log("submitting audio");
-    // console.log("file", file);
     const formData = new FormData();
     formData.append("file", file);
     const promise = () =>
@@ -36,17 +34,11 @@ export default function AudioSubmit({ setFile, file }: Props) {
     toast.promise(promise, {
       loading: "Sending Your File to the Server",
       success: (data) => {
-        console.log(data)
         setOpen(true);
-        if(data.ok){
-            setCall_id(data)
-            return "Recieved Call ID: " + data;
-        } else {
-            return "Failed to send file"
-        }
-       
+        setCall_id(data)
+        return "Recieved Call ID: " + data;
       },
-      error: "Error",
+      error: "Failed to send file",
     });
   }
 
@@ -58,7 +50,9 @@ export default function AudioSubmit({ setFile, file }: Props) {
             <DialogTitle>Successfully Sent File !</DialogTitle>
             <DialogDescription>
               The transcription will be available at this link. You can go there right now or check back later.
+              <div className="max-w-[325px] sm:max-w-[450px] w-full">
               <ShareUrl host={window.location.href} call_id={call_id}/>
+              </div>
             </DialogDescription>
             <DialogFooter>
                 <div className="flex gap-2 justify-end mt-2">
