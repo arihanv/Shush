@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import Link from "next/link";
+import ShareUrl from "./share-url";
 
 type Props = {
   setFile: React.Dispatch<React.SetStateAction<File | undefined>>;
@@ -20,20 +21,30 @@ type Props = {
 export default function AudioSubmit({ setFile, file }: Props) {
   const [submitted, setSubmitted] = useState(false);
   const [open, setOpen] = useState(false);
+  const [call_id, setCall_id] = useState("");
   async function submitAudio() {
     console.log("submitting audio");
-    console.log("file", file.name);
-
+    // console.log("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
     const promise = () =>
-      fetch(`${process.env.NEXT_PUBLIC_MODAL_URL}/stats`, {
-        method: "GET",
+      fetch(`${process.env.NEXT_PUBLIC_MODAL_URL}/transcribe`, {
+        method: "POST",
+        body: formData,
       }).then((response) => response.json());
 
     toast.promise(promise, {
       loading: "Sending Your File to the Server",
       success: (data) => {
+        console.log(data)
         setOpen(true);
-        return JSON.stringify(data);
+        if(data.ok){
+            setCall_id(data)
+            return "Recieved Call ID: " + data;
+        } else {
+            return "Failed to send file"
+        }
+       
       },
       error: "Error",
     });
@@ -46,11 +57,12 @@ export default function AudioSubmit({ setFile, file }: Props) {
           <DialogHeader className="text-left">
             <DialogTitle>Successfully Sent File !</DialogTitle>
             <DialogDescription>
-              The transcription will be available at this link. You can go there right now or check back later
+              The transcription will be available at this link. You can go there right now or check back later.
+              <ShareUrl host={window.location.href} call_id={call_id}/>
             </DialogDescription>
             <DialogFooter>
                 <div className="flex gap-2 justify-end mt-2">
-                <Link href="/tryit/call" className={twMerge(buttonVariants(), "w-fit")}>
+                <Link href={`/tryit/${call_id}`} className={twMerge(buttonVariants(), "w-fit")}>
                     Go to the Link
                 </Link>
               <Button
@@ -59,6 +71,7 @@ export default function AudioSubmit({ setFile, file }: Props) {
                   setFile(undefined);
                   setOpen(false);
                   setSubmitted(false);
+                  setCall_id("");
                 }}
               >
                 Upload A New File
@@ -71,7 +84,7 @@ export default function AudioSubmit({ setFile, file }: Props) {
       <Button
         disabled={submitted}
         onClick={() => {
-          setSubmitted(false), submitAudio();
+          setSubmitted(true), submitAudio();
         }}
       >
         {submitted ? "Sending ..." : "Send It !"}

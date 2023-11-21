@@ -26,7 +26,7 @@ export default function Stats() {
           console.error("Error:", error);
         })
         .finally(() => {
-          timeoutId = setTimeout(fetchData, 5000);
+          timeoutId = setTimeout(fetchData, 10000);
         });
     };
     fetchData();

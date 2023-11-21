@@ -42,7 +42,7 @@ export default async function Page({
           <span className="opacity-70 font-mono text-base font-medium">
             Share
           </span>
-          <ShareUrl host={host || "localhost:3000"} />
+          <ShareUrl host={`${host}/tryit` || "localhost:3000/tryit"} call_id={params.call_id} />
         </div>
       </div>
     </>
