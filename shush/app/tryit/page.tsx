@@ -52,7 +52,7 @@ export default function TryIt() {
           />
         </div>
       </section>
-      {/* <Stats/> */}
+      <Stats/>
     </div>
   );
 }
