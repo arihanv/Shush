@@ -26,7 +26,6 @@ const Waveform = ({ file }: Props) => {
   const [play, setPlay] = useState(false);
 
   useEffect(() => {
-    console.log("created waveform");
     if (waveform.current) {
       track.current = WaveSurfer.create({
         container: waveform.current,
@@ -64,7 +63,6 @@ const Waveform = ({ file }: Props) => {
   useEffect(() => {
     if (track.current) {
       track.current.on("interaction", () => {
-        console.log("seek");
         setCurrentTime(track.current?.getCurrentTime() || 0);
       });
     }
