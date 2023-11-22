@@ -10,7 +10,7 @@ export default function ReqProgress() {
         </div>{" "}
         Function Call Is In Progress
       </div>
-        <div className="text-gray-600 text-opacity-70 text-sm">
+        <div className="text-gray-600 text-opacity-70 text-xs sm:text-sm">
             You can stay on this page or come back later to the same url
         </div>
       </div>

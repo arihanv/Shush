@@ -19,7 +19,7 @@ export default function DataViewer({ data }: Props) {
           </TabsList>
           <div className="bg-gray-100 text-sm px-2 rounded-lg border-gray-300 border text-gray-600">
           <span className="sm:inline hidden">Finished on a <span className="font-medium">NVIDIA A10G</span> in{" "}</span>
-            <span className="font-medium">~{data[1].toFixed(2)}</span> seconds
+            <span className="font-medium">~{data[1].toFixed(2)}s</span>
           </div>
         </div>
         <TabsContent
