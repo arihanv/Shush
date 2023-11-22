@@ -2,6 +2,7 @@ import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import { twMerge } from "tailwind-merge";
 import CodeHost from "@/components/code-host";
+import Footer from "@/components/footer";
 
 export default function Home() {
   return (
@@ -33,6 +34,7 @@ export default function Home() {
       >
         <CodeHost />
       </section>
+      <Footer/>
     </div>
   );
 }
