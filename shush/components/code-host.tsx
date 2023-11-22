@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export default function CodeHost() {
   return (
     <div>
-      <Tabs defaultValue="modal" className="xl:w-[600px] min-h-[500px]">
+      <Tabs defaultValue="modal" className="w-[475px] xl:w-[600px] min-h-[500px]">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="modal">Deploy on Modal</TabsTrigger>
           <TabsTrigger value="local">Run Locally</TabsTrigger>
