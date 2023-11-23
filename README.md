@@ -16,7 +16,7 @@ We will be using Modal to deploy and serve [WhisperV3](https://github.com/openai
 Execute the following commands in your terminal:
 ```
 cd modal
-modal deploy modal_app.py
+modal deploy shush.py
 ```
 
 ## Deploy Frontend
