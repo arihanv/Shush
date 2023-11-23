@@ -86,7 +86,7 @@ class WhisperV3:
 @stub.function(allow_concurrent_inputs=80)
 @web_app.post("/transcribe")
 async def transcribe(request: Request):
-    print("Recieved a request from", request.client)
+    print("Received a request from", request.client)
     form = await request.form()
     file_content = await form["file"].read()
     f = Function.lookup("whisper-v3", "WhisperV3.generate")
@@ -96,7 +96,7 @@ async def transcribe(request: Request):
 @stub.function(allow_concurrent_inputs=80)
 @web_app.get("/stats")
 def stats(request: Request):
-    print("Recieved a request from", request.client)
+    print("Received a request from", request.client)
     f = Function.lookup("whisper-v3", "WhisperV3.generate")
     return f.get_current_stats()
 

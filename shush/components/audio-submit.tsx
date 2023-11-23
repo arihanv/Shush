@@ -36,7 +36,7 @@ export default function AudioSubmit({ setFile, file }: Props) {
       success: (data) => {
         setOpen(true);
         setCall_id(data)
-        return "Recieved Call ID: " + data;
+        return "Received Call ID: " + data;
       },
       error: "Failed to send file",
     });
