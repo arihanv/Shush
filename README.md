@@ -1,6 +1,10 @@
 # Shush
 
-https://github.com/arihanv/Shush/assets/63890951/7439ae39-67f7-4546-a896-8c1a50636197
+
+https://github.com/arihanv/Shush/assets/63890951/6e675260-c29a-4fd4-8ba5-0b70549f0bcd
+
+
+
 
 
 Shush is an app that deploys a WhisperV3 model with Fast Attention v2 on Modal and makes requests to it via a NextJS app. The essential **goal** of this app is to provide a full-stack demo to those interested in running high-performance models and reliable APIs on demand with auto-scaling.
