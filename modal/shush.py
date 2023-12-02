@@ -26,7 +26,6 @@ image = (
     .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
     .run_function(
         download_model,
-        secret=Secret.from_name("huggingface"),
     )
 )
 

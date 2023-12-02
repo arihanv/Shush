@@ -44,9 +44,10 @@ export default function CodeHost() {
               <CodeBlock
                 fileName="modal_app.py"
                 language="python"
-                value={`from modal import Image, Secret, Stub, method, NetworkFileSystem, asgi_app, Function
+                value={`from modal import Image, Stub, method, NetworkFileSystem, asgi_app
 from fastapi import Request, FastAPI
 import tempfile
+import time
 
 MODEL_DIR = "/model"
 
@@ -72,11 +73,10 @@ image = (
     .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
     .run_function(
         download_model,
-        secret=Secret.from_name("huggingface"),
     )
 )
 
-stub = Stub("whisper-v3", image=image)
+stub = Stub("whisper-v3-demo", image=image)
 stub.net_file_system = NetworkFileSystem.new()
 
 @stub.cls(
@@ -115,7 +115,6 @@ class WhisperV3:
 
     @method()
     def generate(self, audio: bytes):
-        import time
         fp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
         fp.write(audio)
         fp.close()
@@ -128,7 +127,9 @@ class WhisperV3:
 
 @stub.function()
 @web_app.post("/")
-async def transcribe(audio: bytes):
+async def transcribe(request: Request):
+    form = await request.form()
+    audio = await form["audio"].read()
     output, elapsed= WhisperV3().generate.remote(audio)
     return output, elapsed
 
@@ -156,7 +157,7 @@ def entrypoint():
             <pre className="bg-gray-100 text-black border-gray-300 border-2">
               <code>
                 <span className="select-none pr-3">$</span>
-                {`curl -X POST -H "Content-Type: application/octet-stream" --data-binary @<file> "https://<modal_org_name>--<stub_name>-entrypoint.modal.run?audio=<file>`}
+                {`curl -X POST -F "audio=@<file>" https://<org_name>--whisper-v3-demo-entrypoint.modal.run`}
               </code>
             </pre>
           </div>
