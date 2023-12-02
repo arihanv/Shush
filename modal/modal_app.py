@@ -3,9 +3,10 @@ This is the base modal app that will be used to generate the modal. View the ins
 or visit this website for more information: http://localhost:3000/#host
 '''
 
-from modal import Image, Secret, Stub, method, NetworkFileSystem, asgi_app, Function
+from modal import Image, Stub, method, NetworkFileSystem, asgi_app
 from fastapi import Request, FastAPI
 import tempfile
+import time
 
 MODEL_DIR = "/model"
 
@@ -31,11 +32,10 @@ image = (
     .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
     .run_function(
         download_model,
-        secret=Secret.from_name("huggingface"),
     )
 )
 
-stub = Stub("whisper-v3", image=image)
+stub = Stub("whisper-v3-demo", image=image)
 stub.net_file_system = NetworkFileSystem.new()
 
 @stub.cls(
@@ -74,7 +74,6 @@ class WhisperV3:
 
     @method()
     def generate(self, audio: bytes):
-        import time
         fp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
         fp.write(audio)
         fp.close()
@@ -87,7 +86,9 @@ class WhisperV3:
 
 @stub.function()
 @web_app.post("/")
-async def transcribe(audio: bytes):
+async def transcribe(request: Request):
+    form = await request.form()
+    audio = await form["audio"].read()
     output, elapsed= WhisperV3().generate.remote(audio)
     return output, elapsed
 
