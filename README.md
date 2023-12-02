@@ -22,13 +22,19 @@ Execute the following commands in your terminal:
 cd modal
 modal deploy shush.py
 ```
+This is should give you a url in the form: `https://[ORG_NAME]--[STUB_NAME]-entrypoint.modal.run`
 
 ## Deploy Frontend
 Now let's run the NextJS app. After going back to the root of the repo, execute the following commands:
 ```
 cd shush
+```
+Now create a `.env` file and add the url we got from Modal (view `.env.example` for reference)
+
+Then we can just do:
+```
 bun i
 bun run dev
 ```
 
-And that's it! Open http://localhost:3000/ in your browser and test your model out!
+And that's it! Open http://localhost:3000/ in your browser and test the app + model out!
