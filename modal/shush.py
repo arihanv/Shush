@@ -1,4 +1,13 @@
-from modal import Image, Secret, Stub, method, NetworkFileSystem, asgi_app, Function, functions
+from modal import (
+    Image,
+    Secret,
+    Stub,
+    method,
+    NetworkFileSystem,
+    asgi_app,
+    Function,
+    functions,
+)
 from fastapi import Request, FastAPI, responses
 from fastapi.middleware.cors import CORSMiddleware
 import tempfile
@@ -17,31 +26,35 @@ web_app.add_middleware(
 
 def download_model():
     from huggingface_hub import snapshot_download
+
     snapshot_download("openai/whisper-large-v3", local_dir=MODEL_DIR)
 
 
 image = (
     Image.from_registry("nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04", add_python="3.9")
-    .apt_install("git","ffmpeg")
+    .apt_install("git", "ffmpeg")
     .pip_install(
         "transformers",
         "ninja",
         "packaging",
         "wheel",
-         "torch",
+        "torch",
         "hf-transfer~=0.1",
         "ffmpeg-python",
-    ).run_commands("python -m pip install flash-attn --no-build-isolation", gpu="A10G")
+    )
+    .run_commands("python -m pip install flash-attn --no-build-isolation", gpu="A10G")
     .env({"HF_HUB_ENABLE_HF_TRANSFER": "1"})
     .run_function(
         download_model,
     )
 )
 
-stub = Stub("whisper-v3", image=image)
+stub = Stub("whisper-v3")
 stub.net_file_system = NetworkFileSystem.new()
 
+
 @stub.cls(
+    image=image,
     gpu="A10G",
     allow_concurrent_inputs=80,
     container_idle_timeout=40,
@@ -79,6 +92,7 @@ class WhisperV3:
     @method()
     def generate(self, audio: bytes):
         import time
+
         fp = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3")
         fp.write(audio)
         fp.close()
@@ -90,7 +104,6 @@ class WhisperV3:
         return output, elapsed
 
 
-@stub.function(allow_concurrent_inputs=80)
 @web_app.post("/transcribe")
 async def transcribe(request: Request):
     print("Received a request from", request.client)
@@ -100,14 +113,14 @@ async def transcribe(request: Request):
     call = f.spawn(file_content)
     return call.object_id
 
-@stub.function(allow_concurrent_inputs=80)
+
 @web_app.get("/stats")
 def stats(request: Request):
     print("Received a request from", request.client)
     f = Function.lookup("whisper-v3", "WhisperV3.generate")
     return f.get_current_stats()
 
-@stub.function(allow_concurrent_inputs=80)
+
 @web_app.post("/call_id")
 async def get_completion(request: Request):
     form = await request.form()
@@ -119,7 +132,8 @@ async def get_completion(request: Request):
         return responses.JSONResponse(content="", status_code=202)
     return result
 
-@stub.function()
+
+@stub.function(allow_concurrent_inputs=4)
 @asgi_app()
 def entrypoint():
     return web_app

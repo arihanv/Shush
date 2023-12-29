@@ -1,6 +1,6 @@
 '''
 This is the base modal app that will be used to generate the modal. View the instruction in the README.md
-or visit this website for more information: http://localhost:3000/#host
+or visit this website for more information: https://shush.arihanv.com/#host
 '''
 
 from modal import Image, Stub, method, NetworkFileSystem, asgi_app
