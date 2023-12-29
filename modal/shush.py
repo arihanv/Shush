@@ -16,7 +16,6 @@ MODEL_DIR = "/model"
 
 web_app = FastAPI()
 
-
 web_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,7 +23,6 @@ web_app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 def download_model():
     from huggingface_hub import snapshot_download
@@ -67,7 +65,6 @@ class WhisperV3:
         import torch
         from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
-        print()
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
         self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         model = AutoModelForSpeechSeq2Seq.from_pretrained(
