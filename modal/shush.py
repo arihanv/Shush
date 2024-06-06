@@ -1,12 +1,13 @@
 from modal import (
     Image,
     Secret,
-    Stub,
+    App,
     method,
-    NetworkFileSystem,
+    Volume,
     asgi_app,
     Function,
     functions,
+    enter,
 )
 from fastapi import Request, FastAPI, responses
 from fastapi.middleware.cors import CORSMiddleware
@@ -26,7 +27,6 @@ web_app.add_middleware(
 
 def download_model():
     from huggingface_hub import snapshot_download
-
     snapshot_download("openai/whisper-large-v3", local_dir=MODEL_DIR)
 
 
@@ -49,19 +49,20 @@ image = (
     )
 )
 
-stub = Stub("whisper-v3")
-stub.net_file_system = NetworkFileSystem.new()
+app = App("whisper-v3")
+volume = Volume.from_name("models", create_if_missing=True)
 
 
-@stub.cls(
+@app.cls(
     image=image,
     gpu="A10G",
     allow_concurrent_inputs=80,
     container_idle_timeout=40,
-    network_file_systems={"/audio_files": stub.net_file_system},
+    volumes={"/audio_files": volume},
 )
 class WhisperV3:
-    def __enter__(self):
+    @enter()
+    def setup(self):
         import torch
         from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
@@ -71,7 +72,7 @@ class WhisperV3:
             MODEL_DIR,
             torch_dtype=self.torch_dtype,
             use_safetensors=True,
-            use_flash_attention_2=True,
+            attn_implementation="flash_attention_2",
         )
         processor = AutoProcessor.from_pretrained(MODEL_DIR)
         model.to(self.device)
@@ -101,6 +102,7 @@ class WhisperV3:
             fp.name, chunk_length_s=30, batch_size=24, return_timestamps=True
         )
         elapsed = time.time() - start
+        volume.commit()  # Ensure changes are persisted
         return output, elapsed
 
 
@@ -133,7 +135,7 @@ async def get_completion(request: Request):
     return result
 
 
-@stub.function(allow_concurrent_inputs=4)
+@app.function(allow_concurrent_inputs=4)
 @asgi_app()
 def entrypoint():
     return web_app
