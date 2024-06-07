@@ -1,12 +1,10 @@
 from modal import (
     Image,
-    Secret,
-    Stub,
+    App,
     method,
-    NetworkFileSystem,
     asgi_app,
-    Function,
     functions,
+    enter,
 )
 from fastapi import Request, FastAPI, responses
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,6 +21,7 @@ web_app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 def download_model():
     from huggingface_hub import snapshot_download
@@ -49,23 +48,22 @@ image = (
     )
 )
 
-stub = Stub("whisper-v3")
-stub.net_file_system = NetworkFileSystem.new()
+app = App("whisper-v3")
 
 
-@stub.cls(
+@app.cls(
     image=image,
     gpu="A10G",
     allow_concurrent_inputs=80,
     container_idle_timeout=40,
-    network_file_systems={"/audio_files": stub.net_file_system},
 )
 class WhisperV3:
-    def __enter__(self):
+    @enter()
+    def setup(self):
         import torch
         from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         model = AutoModelForSpeechSeq2Seq.from_pretrained(
             MODEL_DIR,
@@ -108,16 +106,17 @@ class WhisperV3:
 async def transcribe(request: Request):
     print("Received a request from", request.client)
     form = await request.form()
-    file_content = await form["file"].read()
-    f = Function.lookup("whisper-v3", "WhisperV3.generate")
-    call = f.spawn(file_content)
+    file_content = await form["audio"].read()
+    model = WhisperV3()
+    call = model.generate.spawn(file_content)
     return call.object_id
 
 
 @web_app.get("/stats")
 def stats(request: Request):
     print("Received a request from", request.client)
-    f = Function.lookup("whisper-v3", "WhisperV3.generate")
+    model = WhisperV3()
+    f = model.generate
     return f.get_current_stats()
 
 
@@ -129,11 +128,13 @@ async def get_completion(request: Request):
     try:
         result = f.get(timeout=0)
     except TimeoutError:
-        return responses.JSONResponse(content="", status_code=202)
+        return responses.JSONResponse(
+            content="Result did not finish processing.", status_code=202
+        )
     return result
 
 
-@stub.function(allow_concurrent_inputs=4)
+@app.function(allow_concurrent_inputs=4)
 @asgi_app()
 def entrypoint():
     return web_app
