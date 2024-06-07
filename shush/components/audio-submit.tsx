@@ -24,7 +24,7 @@ export default function AudioSubmit({ setFile, file }: Props) {
   const [call_id, setCall_id] = useState("");
   async function submitAudio() {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("audio", file);
     const promise = () =>
       fetch(`${process.env.NEXT_PUBLIC_MODAL_URL}/transcribe`, {
         method: "POST",
