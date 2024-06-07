@@ -22,8 +22,10 @@ web_app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def download_model():
     from huggingface_hub import snapshot_download
+
     snapshot_download("openai/whisper-large-v3", local_dir=MODEL_DIR)
 
 
@@ -126,7 +128,9 @@ async def get_completion(request: Request):
     try:
         result = f.get(timeout=0)
     except TimeoutError:
-        return responses.JSONResponse(content="Result did not finish processing.", status_code=202)
+        return responses.JSONResponse(
+            content="Result did not finish processing.", status_code=202
+        )
     return result
 
 
