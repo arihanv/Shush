@@ -1,11 +1,8 @@
 from modal import (
     Image,
-    Secret,
     App,
     method,
-    Volume,
     asgi_app,
-    Function,
     functions,
     enter,
 )
@@ -50,7 +47,6 @@ image = (
 )
 
 app = App("whisper-v3")
-volume = Volume.from_name("models", create_if_missing=True)
 
 
 @app.cls(
@@ -58,7 +54,6 @@ volume = Volume.from_name("models", create_if_missing=True)
     gpu="A10G",
     allow_concurrent_inputs=80,
     container_idle_timeout=40,
-    volumes={"/audio_files": volume},
 )
 class WhisperV3:
     @enter()
@@ -66,13 +61,13 @@ class WhisperV3:
         import torch
         from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
         model = AutoModelForSpeechSeq2Seq.from_pretrained(
             MODEL_DIR,
             torch_dtype=self.torch_dtype,
             use_safetensors=True,
-            attn_implementation="flash_attention_2",
+            use_flash_attention_2=True,
         )
         processor = AutoProcessor.from_pretrained(MODEL_DIR)
         model.to(self.device)
@@ -102,7 +97,6 @@ class WhisperV3:
             fp.name, chunk_length_s=30, batch_size=24, return_timestamps=True
         )
         elapsed = time.time() - start
-        volume.commit()  # Ensure changes are persisted
         return output, elapsed
 
 
@@ -110,16 +104,17 @@ class WhisperV3:
 async def transcribe(request: Request):
     print("Received a request from", request.client)
     form = await request.form()
-    file_content = await form["file"].read()
-    f = Function.lookup("whisper-v3", "WhisperV3.generate")
-    call = f.spawn(file_content)
+    file_content = await form["audio"].read()
+    model = WhisperV3()
+    call = model.generate.spawn(file_content)
     return call.object_id
 
 
 @web_app.get("/stats")
 def stats(request: Request):
     print("Received a request from", request.client)
-    f = Function.lookup("whisper-v3", "WhisperV3.generate")
+    model = WhisperV3()
+    f = model.generate
     return f.get_current_stats()
 
 
@@ -131,7 +126,7 @@ async def get_completion(request: Request):
     try:
         result = f.get(timeout=0)
     except TimeoutError:
-        return responses.JSONResponse(content="", status_code=202)
+        return responses.JSONResponse(content="Result did not finish processing.", status_code=202)
     return result
 
 
